@@ -1,19 +1,35 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-//Will use an algorithm to construct a randomly generated maze
 public class MazeConstructor : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
+    //Create variable for easy debugging
+    public bool showDebug;
 
+    //materials for maze meshes
+    [SerializeField] private Material mazeMat1;
+    [SerializeField] private Material mazeMat2;
+    [SerializeField] private Material startMat;
+
+    //contains maze data (walls and passages)
+    public int[,] data
+    {
+        get; private set;
     }
 
-    // Update is called once per frame
-    void Update()
+    //Initializes the initial maze
+    void Awake()
     {
+        // default to walls surrounding a single empty cell for testing purposes
+        data = new int[,]
+        {
+            {true, true, true},
+            {true, false, true},
+            {true, true, true}
+        };
+    }
 
+    public void GenerateNewMaze(int size)
+    {
+        
     }
 }

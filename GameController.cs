@@ -1,18 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
+
+[RequireComponent(typeof(MazeConstructor))]               // 1
 
 public class GameController : MonoBehaviour
 {
-    // Start is called before the first frame update
+    private MazeConstructor generator;
+
     void Start()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        generator = GetComponent<MazeConstructor>();      // 2
     }
 }
