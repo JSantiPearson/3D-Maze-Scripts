@@ -5,6 +5,9 @@ public class MazeConstructor : MonoBehaviour
     //Create variable for easy debugging
     public bool showDebug;
 
+    // private generator for maze data
+    private MazeDataGenerator dataGenerator;
+
     //materials for maze meshes
     [SerializeField] private Material mazeMat1;
     [SerializeField] private Material mazeMat2;
@@ -19,13 +22,7 @@ public class MazeConstructor : MonoBehaviour
     //Initializes the initial maze
     void Awake()
     {
-        // default to walls surrounding a single empty cell for testing purposes
-        data = new bool[,]
-        {
-            {true, true, true},
-            {true, false, true},
-            {true, true, true}
-        };
+      dataGenerator = new MazeDataGenerator();
     }
 
     // Displays maze data when debugging is on
@@ -61,11 +58,11 @@ public class MazeConstructor : MonoBehaviour
       }
 
       //prints the string
-      GUI.Label(new Rect(20, 20, 500, 500), msg);
+      GUI.Label(new Rect(200, 200, 5000, 5000), msg);
     }
 
     public void GenerateNewMaze(int size)
     {
-
+      data = dataGenerator.FromDimensions(size);
     }
 }

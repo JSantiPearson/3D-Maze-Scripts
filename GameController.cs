@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(MazeConstructor))]               // 1
+[RequireComponent(typeof(MazeConstructor))]               // Creates instance of MazeConstructor component
 
 public class GameController : MonoBehaviour
 {
@@ -9,6 +9,7 @@ public class GameController : MonoBehaviour
 
     void Start()
     {
-        generator = GetComponent<MazeConstructor>();      // 2
+        generator = GetComponent<MazeConstructor>();      // Creates a maze generator
+        generator.GenerateNewMaze(10);
     }
 }
