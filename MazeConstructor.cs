@@ -11,7 +11,7 @@ public class MazeConstructor : MonoBehaviour
     [SerializeField] private Material startMat;
 
     //contains maze data (walls and passages)
-    public int[,] data
+    public bool[,] data
     {
         get; private set;
     }
@@ -20,7 +20,7 @@ public class MazeConstructor : MonoBehaviour
     void Awake()
     {
         // default to walls surrounding a single empty cell for testing purposes
-        data = new int[,]
+        data = new bool[,]
         {
             {true, true, true},
             {true, false, true},
@@ -28,8 +28,44 @@ public class MazeConstructor : MonoBehaviour
         };
     }
 
+    // Displays maze data when debugging is on
+    void OnGUI()
+    {
+      //return if debug is false
+      if (!showDebug)
+      {
+          return;
+      }
+
+      //get the size of the sides of the maze (they will always be equal)
+      bool[,] maze = data;
+      int size = maze.GetUpperBound(0);
+
+      string msg = "";
+
+      //check the stored value of each element in the array and print a visual to display the maze
+      for (int i = size; i >= 0; i--)
+      {
+          for (int j = 0; j <= size; j++)
+          {
+              if (maze[i, j] == false)
+              {
+                  msg += "....";
+              }
+              else
+              {
+                  msg += "==";
+              }
+          }
+          msg += "\n";
+      }
+
+      //prints the string
+      GUI.Label(new Rect(20, 20, 500, 500), msg);
+    }
+
     public void GenerateNewMaze(int size)
     {
-        
+
     }
 }
