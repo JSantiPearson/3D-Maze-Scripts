@@ -41,7 +41,7 @@ public class MazeConstructor : MonoBehaviour
       string msg = "";
 
       //check the stored value of each element in the array and print a visual to display the maze
-      for (int i = size; i >= 0; i--)
+      for (int i = 0; i <= size; i++)
       {
           for (int j = 0; j <= size; j++)
           {
