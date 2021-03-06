@@ -135,13 +135,14 @@ public class MazeDataGenerator
     }
   }
 
-  private bool connectsEnd(List<Point> endWalls, Point choice){
-    if (endWalls.Contains(choice)){
-      return true;
+  private bool connectsEnd(Point end, Point choice){
+    List<Point> endPoints = getAdjacent(end);
+    foreach (Point point in endPoints){
+      if (choice.x == point.x && choice.y == point.y){
+        return true;
+      }
     }
-    else {
-      return false;
-    }
+    return false;
   }
 
   private void createPath(Point start, Point end){
@@ -152,13 +153,35 @@ public class MazeDataGenerator
     while (walls.Count > 0){
       int choiceIndex = (Random.Range(0, walls.Count));
       Point choice = walls[choiceIndex];
-      if (!tooSparse(choice) || (!willBeWide(choice) && connectsEnd(endWalls, choice))){
+      if (!tooSparse(choice) || (!willBeWide(choice) && connectsEnd(end, choice))){
         maze[choice.x, choice.y] = false;
         walls = addWalls(walls, getAdjacentWalls(choice));
       }
       current = choice;
       walls.RemoveAt(choiceIndex);
     }
+  }
+
+  private bool[,] fenceMaze(){
+    int size = maze.GetLength(0);
+    size += 2;
+    bool[,] completeMaze = new bool[size, size];
+
+    for (int i = 0; i < size; i++){
+      for (int j = 0; j < size; j++){
+        if (i != 0 && j != 0 && i != size-1 && j != size-1){
+          completeMaze[i, j] = maze[i-1, j-1];
+        }
+        else {
+          completeMaze[i, j] = true;
+        }
+      }
+    }
+
+    completeMaze[0, 1] = false;
+    completeMaze[size-1, size-2] = false;
+
+    return completeMaze;
   }
 
   public bool[,] FromDimensions(int size) //takes the size of the maze and generates the placement of walls
@@ -173,21 +196,10 @@ public class MazeDataGenerator
     Point end = new Point(size-1, size-1);
     maze[0, 0] = false;
     maze[size-1, size-1] = false;
-    createPath(end, start);
 
-    bool[,] completeMaze = new bool[size+1, size+1];
-    for (int i = 0; i <= size; i++){
-      for (int j = 0; j <= size; j++){
-        if (i == 0 || j == 0 || i == size || j == size){
-          completeMaze[i, j] = true;
-        }
-        else {
-          completeMaze[i,j] = maze[i, j];
-        }
-      }
-    }
-    completeMaze[0, 1] = false;
-    completeMaze[size, size-1] = false;
-    return completeMaze;
+    createPath(end, start);
+    createPath(start, end);
+
+    return fenceMaze();
   }
 }
