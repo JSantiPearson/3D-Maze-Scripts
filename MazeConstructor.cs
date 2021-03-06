@@ -5,6 +5,11 @@ public class MazeConstructor : MonoBehaviour
     //Create variable for easy debugging
     public bool showDebug;
 
+    public GameObject player;
+
+    // generates mesh for maze
+    private MazeMeshGenerator meshGenerator;
+
     // private generator for maze data
     private MazeDataGenerator dataGenerator;
 
@@ -23,6 +28,7 @@ public class MazeConstructor : MonoBehaviour
     void Awake()
     {
       dataGenerator = new MazeDataGenerator();
+      meshGenerator = new MazeMeshGenerator();
     }
 
     // Displays maze data when debugging is on
@@ -45,6 +51,9 @@ public class MazeConstructor : MonoBehaviour
       {
           for (int j = 0; j <= size; j++)
           {
+              if (player.transform.position.x == i && player.transform.position.z == j){
+                msg += "!!!";
+              }
               if (maze[i, j] == false)
               {
                   msg += "....";
@@ -58,11 +67,30 @@ public class MazeConstructor : MonoBehaviour
       }
 
       //prints the string
-      GUI.Label(new Rect(200, 200, 5000, 5000), msg);
+      GUI.Label(new Rect(20, 20, 500, 500), msg);
     }
+
+    private void DisplayMaze()
+    {
+      GameObject go = new GameObject();
+      go.transform.position = Vector3.zero;
+      go.name = "Procedural Maze";
+      go.tag = "Generated";
+
+      MeshFilter mf = go.AddComponent<MeshFilter>();
+      mf.mesh = meshGenerator.FromData(data);
+
+      MeshCollider mc = go.AddComponent<MeshCollider>();
+      mc.sharedMesh = mf.mesh;
+
+      MeshRenderer mr = go.AddComponent<MeshRenderer>();
+      mr.materials = new Material[2] {mazeMat1, mazeMat2};
+    }
+
 
     public void GenerateNewMaze(int size)
     {
       data = dataGenerator.FromDimensions(size);
+      DisplayMaze();
     }
 }

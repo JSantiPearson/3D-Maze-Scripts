@@ -119,7 +119,6 @@ public class MazeDataGenerator
   }
 
   private bool tooSparse(Point choice){
-    //choice is left or right of current
     List<Point> adjacent = getAdjacent(choice);
     int numPassages = 0;
     foreach (Point point in adjacent){
