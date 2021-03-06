@@ -31,80 +31,76 @@ public class MazeDataGenerator
     }
   }
 
-  // Returns true if the point would cause a wide hallway to occur.
-  private bool willBeWide(Point point){
-    Point top = new Point(point.x, point.y-1);
-    Point topRight = new Point(point.x+1, point.y-1);
-    Point right = new Point(point.x+1, point.y);
-    Point downRight = new Point(point.x+1, point.y+1);
-    Point down = new Point(point.x, point.y+1);
-    Point downLeft = new Point(point.x-1, point.y+1);
-    Point left = new Point(point.x-1, point.y);
-    Point topLeft = new Point(point.x-1, point.y-1);
-
-    // Check if the corners and their adjacent points are passages. If they are, it will create a 2-wide.
-    if (withinMaze(top) && withinMaze(topRight) && withinMaze(right) &&
-      !isWall(top) && !isWall(topRight) && !isWall(right)){
-       return true;
-    }
-
-    if (withinMaze(right) && withinMaze(downRight) && withinMaze(down) &&
-      !isWall(right) && !isWall(downRight) && !isWall(down)){
-        return true;
-    }
-
-    if (withinMaze(down) && withinMaze(downLeft) && withinMaze(left) &&
-      !isWall(down) && !isWall(downLeft) && !isWall(left)){
-        return true;
-    }
-
-    if (withinMaze(left) && withinMaze(topLeft) && withinMaze(top) &&
-      !isWall(left) && !isWall(topLeft) && !isWall(top)){
-        return true;
-    }
-    return false;
-  }
-
-  // Returns true of the point is within the maze bounds and would not cause a wide hall.
-  private bool isValidPath(Point point){
-    if (!withinMaze(point)){
-      return false;
-    }
-    if (willBeWide(point)){
-      return false;
-    }
-    return true;
-  }
-
   private void addSpot(Point point){
     maze[point.x, point.y] = false;
     createPath(point);
   }
 
-  private void createPath(Point point){
-    List<Point> pathChoices = new List<Point>();
+  private List<Point> getAdjacentWalls(Point point){
+    List<Point> adjacent = new List<Point>();
 
     Point left = new Point(point.x-1, point.y);
     Point up = new Point(point.x, point.y-1);
     Point right = new Point(point.x+1, point.y);
     Point down = new Point(point.x, point.y+1);
 
-    if (isValidPath(left) && isWall(left)){
-      pathChoices.Add(left);
+    if (withinMaze(left) && isWall(left)){
+      adjacent.Add(left);
     }
-    if (isValidPath(up) && isWall(up)){
-      pathChoices.Add(up);
+    if (withinMaze(up) && isWall(up)){
+      adjacent.Add(up);
     }
-    if (isValidPath(right) && isWall(right)){
-      pathChoices.Add(right);
+    if (withinMaze(right) && isWall(right)){
+      adjacent.Add(right);
     }
-    if (isValidPath(down) && isWall(down)){
-      pathChoices.Add(down);
+    if (withinMaze(down) && isWall(down)){
+      adjacent.Add(down);
     }
-    if (pathChoices.Count > 0){
-      int choiceIndex = (Random.Range(0, pathChoices.Count));
-      Point choice = pathChoices[choiceIndex]; //choose a random number between 0 and list size.
-      addSpot(choice);
+    return adjacent;
+  }
+
+  private List<Point> addWalls(List<Point> walls, List<Point> newWalls){
+    foreach (Point wall in newWalls){
+      walls.Add(wall);
+    }
+    return walls;
+  }
+
+  private int numPassages(Point current, Point choice){
+    //choice is left or right of current
+    int numPassages = 0;
+    Point up = new Point(choice.x, choice.y-1);
+    Point down = new Point(choice.x, choice.y+1);
+    Point left = new Point(choice.x-1, choice.y);
+    Point right = new Point(choice.x+1, choice.y);
+    if (withinMaze(up) && !isWall(up)){
+      numPassages++;
+    }
+    if (withinMaze(down) && !isWall(down)){
+      numPassages++;
+    }
+    if (withinMaze(left) && !isWall(left)){
+      numPassages++;
+    }
+    if (withinMaze(right) && !isWall(right)){
+      numPassages++;
+    }
+    return numPassages;
+  }
+
+  private void createPath(Point start){
+    List<Point> walls = new List<Point>();
+    walls = addWalls(walls, getAdjacentWalls(start));
+    Point current = start;
+    while (walls.Count > 0){
+      int choiceIndex = (Random.Range(0, walls.Count));
+      Point choice = walls[choiceIndex];
+      if (numPassages(current, choice) < 2){
+        maze[choice.x, choice.y] = false;
+        walls = addWalls(walls, getAdjacentWalls(choice));
+      }
+      current = choice;
+      walls.RemoveAt(choiceIndex);
     }
   }
 
@@ -120,7 +116,6 @@ public class MazeDataGenerator
     Point end = new Point(size-1, size-1);
     maze[0, 0] = false;
     maze[size-1, size-1] = false;
-    createPath(start);
     createPath(end);
     return maze;
   }
