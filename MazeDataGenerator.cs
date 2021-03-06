@@ -182,12 +182,12 @@ public class MazeDataGenerator
           completeMaze[i, j] = true;
         }
         else {
-          completeMaze[i,j] = maze[i-1, j-1];
+          completeMaze[i,j] = maze[i, j];
         }
       }
     }
     completeMaze[0, 1] = false;
-    completeMaze[size-1, size-0] = false;
+    completeMaze[size, size-1] = false;
     return completeMaze;
   }
 }
