@@ -13,9 +13,10 @@ struct Point
 
 public class MazeDataGenerator
 {
-
+  // global maze 2D array
   bool[,] maze;
 
+  // Return the value of a given point in the maze
   private bool isWall(Point point){
     return maze[point.x, point.y];
   }
@@ -31,6 +32,7 @@ public class MazeDataGenerator
     }
   }
 
+  // returns a list of adjacent valid points that are walls when given a point on the maze
   private List<Point> getAdjacentWalls(Point point){
     List<Point> adjacent = new List<Point>();
 
@@ -54,6 +56,7 @@ public class MazeDataGenerator
     return adjacent;
   }
 
+  // returns a list of adjacent valid points when given a point on the maze
   private List<Point> getAdjacent(Point point){
     List<Point> adjacent = new List<Point>();
 
@@ -77,6 +80,7 @@ public class MazeDataGenerator
     return adjacent;
   }
 
+  // takes a given list of walls and pushes each wall to another list.
   private List<Point> addWalls(List<Point> walls, List<Point> newWalls){
     foreach (Point wall in newWalls){
       walls.Add(wall);
@@ -118,6 +122,7 @@ public class MazeDataGenerator
     return false;
   }
 
+  // checks the adjacent points for passageways. If there are more than one, return true.
   private bool tooSparse(Point choice){
     List<Point> adjacent = getAdjacent(choice);
     int numPassages = 0;
@@ -134,6 +139,7 @@ public class MazeDataGenerator
     }
   }
 
+  // Takes the end point's neighbors and some point, and if there is a match then the point connects to the end.
   private bool connectsEnd(Point end, Point choice){
     List<Point> endPoints = getAdjacent(end);
     foreach (Point point in endPoints){
@@ -144,23 +150,32 @@ public class MazeDataGenerator
     return false;
   }
 
+  // Takes a start point and an end point, then creates pathways in the maze using Prim's algoritm
   private void createPath(Point start, Point end){
     List<Point> walls = new List<Point>();
-    List<Point> endWalls = getAdjacentWalls(end);
+
+    //walls adjacent to start are added to walls list
     walls = addWalls(walls, getAdjacentWalls(start));
     Point current = start;
+
+    //while there are still walls to examine, fill out the maze
     while (walls.Count > 0){
+      //pick a random wall in our list
       int choiceIndex = (Random.Range(0, walls.Count));
       Point choice = walls[choiceIndex];
+      //if the maze isn't too sparse or the wall connects to the end and wouldn't cause a 2-wide
       if (!tooSparse(choice) || (!willBeWide(choice) && connectsEnd(end, choice))){
+        // turn the wall into a passage and add its adjacent walls to the list
         maze[choice.x, choice.y] = false;
         walls = addWalls(walls, getAdjacentWalls(choice));
       }
+      // change the current point on the maze to our choice and remove the choice from the wall list
       current = choice;
       walls.RemoveAt(choiceIndex);
     }
   }
 
+  // takes the maze and creates a border of walls around it except at the entrance and exit.
   private bool[,] fenceMaze(){
     int size = maze.GetLength(0);
     size += 2;
@@ -183,19 +198,25 @@ public class MazeDataGenerator
     return completeMaze;
   }
 
-  public bool[,] FromDimensions(int size) //takes the size of the maze and generates the placement of walls
+  // takes the size of the maze and generates it
+  public bool[,] FromDimensions(int size)
   {
+    // creates solid block of wall with length and width equal to size
     maze = new bool[size, size];
     for (int i = 0; i < size; i++){
       for (int j = 0; j < size; j++){
         maze[i,j] = true;
       }
     }
+    // choose start and end points
     Point start = new Point(0, 0);
     Point end = new Point(size-1, size-1);
-    maze[0, 0] = false;
-    maze[size-1, size-1] = false;
 
+    // start and end are passages
+    maze[start.x, start.y] = false;
+    maze[end.x, end.y] = false;
+
+    //create a path from the start, then a path from the end. Very rarely causes start to be blocked...
     createPath(end, start);
     createPath(start, end);
 
