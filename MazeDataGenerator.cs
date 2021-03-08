@@ -11,6 +11,9 @@ struct Point
      }
 }
 
+/**
+* Generates a 2D bool array that contains the data of the maze
+**/
 public class MazeDataGenerator
 {
   // global maze 2D array
